@@ -33,7 +33,7 @@ exports.createPages = ({ graphql, actions }) => {
 
   return graphql(`
     {
-      allMarkdownRemark(sort: {fields: frontmatter___date, order: DESC}) {
+      allMarkdownRemark(sort: { fields: frontmatter___date, order: DESC }) {
         edges {
           node {
             frontmatter {
@@ -48,19 +48,37 @@ exports.createPages = ({ graphql, actions }) => {
               slug
             }
           }
+          previous {
+            frontmatter {
+              title
+            }
+            fields {
+              slug
+            }
+          }
+          next {
+            frontmatter {
+              title
+            }
+            fields {
+              slug
+            }
+          }
         }
       }
     }
   `).then(result => {
     const posts = result.data.allMarkdownRemark.edges
 
-    result.data.allMarkdownRemark.edges.forEach(({node}) => {
+    result.data.allMarkdownRemark.edges.forEach(({ node, next, previous }) => {
       createPage({
         path: node.fields.slug,
-        component: path.resolve('./src/templates/blog-post.js'),
+        component: path.resolve("./src/templates/blog-post.js"),
         context: {
-          slug: node.fields.slug
-        }
+          slug: node.fields.slug,
+          previousPost: next,
+          nextPost: previous,
+        },
       })
     })
 
@@ -75,8 +93,8 @@ exports.createPages = ({ graphql, actions }) => {
           limit: postsPerPage,
           skip: index * postsPerPage,
           numPages,
-          currentPage: index + 1
-        }
+          currentPage: index + 1,
+        },
       })
     })
   })
